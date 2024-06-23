@@ -15,4 +15,3 @@ The goal of this project is to understand this traffic better, in particular the
 
 # Data Description
 The data set provided (traffic.csv) contains web traffic data ("events") from a few different pages ("links") over a period of 7 days including various categorical dimensions about the geographic origin of that traffic as well as a page's content: isrc.
-
