@@ -54,3 +54,16 @@ avg(click_rate) avg_click_rate,
 stddev(click_rate) click_rate_std,
 approx_quantiles(click_rate, 4) min_25_median_75_max
 from t1
+
+6) -- Is there any correlation between clicks and previews on a link? Is it significant? How large is the effect? Make sure to at least test for potential linear as well as categorical (think binary) relationships between both variables.
+
+with t1 as (select linkid,
+sum(case when event = 'click' then 1 else 0 end) click_sum,
+sum(case when event = 'preview' then 1 else 0 end) preview_sum, 
+FROM `focus-shape-427221-e1.Website_Traffic_Analysis_Linkfire.Traffic`
+group by 1
+order by 1)
+
+select round(corr(click_sum, preview_sum),2) corr_
+from t1
+
