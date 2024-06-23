@@ -15,3 +15,4 @@ The goal of this project is to understand this traffic better, in particular the
 
 # Data Description
 The data set provided (traffic.csv) contains web traffic data ("events") from a few different pages ("links") over a period of 7 days including various categorical dimensions about the geographic origin of that traffic as well as a page's content: isrc.
+![Captura de pantalla 2024-06-23 183142](https://github.com/MiguelPMiralles/Website-Traffic-Analysis---LinkFire/assets/91352151/bfa502ca-5ee5-4ba8-af19-34bc48e669d8)
