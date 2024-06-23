@@ -1,0 +1,56 @@
+1) How many total pageview events did the links in the provided dataset receive in the full period, how many per day?
+
+SELECT date, count(event) pageview_event_count FROM `focus-shape-427221-e1.Website_Traffic_Analysis_Linkfire.Traffic`
+where event = 'pageview'
+group by 1
+order by 1
+
+2) What about the other recorded events?
+
+with t1 as (SELECT date,
+sum(case when event = 'click' then 1 else 0 end) as click_count,
+sum(case when event = 'preview' then 1 else 0 end) as preview_count,
+FROM `focus-shape-427221-e1.Website_Traffic_Analysis_Linkfire.Traffic`
+group by 1)
+
+select date, click_count, preview_count
+from t1
+group by 1,2,3
+
+3) Which countries did the clicks come from?
+
+SELECT distinct country FROM `focus-shape-427221-e1.Website_Traffic_Analysis_Linkfire.Traffic`
+where event = 'click' and country is not null
+order by 1
+
+4) What was the overall click rate (clicks/pageviews given linkid)?
+
+SELECT linkid,
+sum(case when event = 'click' then 1 else 0 end) click_sum,
+sum(case when event = 'pageview' then 1 else 0 end) pageview_sum, 
+sum(case when event = 'click' then 1 else 0 end) / nullif(sum(case when event = 'pageview' then 1 else 0 end),0) click_rate
+FROM `focus-shape-427221-e1.Website_Traffic_Analysis_Linkfire.Traffic`
+group by 1
+-- pass having condition to leave out cases where the click rate is 0, as a value other than 0 is needed in the denominator to signal that a pageview took place
+having sum(case when event = 'click' then 1 else 0 end) / nullif(sum(case when event = 'pageview' then 1 else 0 end),0) > 0.0
+order by 1
+
+5) How does the clickrate distribute across different links?
+
+-- The query used for Q4 can be recycled into a CTE in order to obtain top-view statistical descriptors
+with t1 as (SELECT linkid,
+sum(case when event = 'click' then 1 else 0 end) click_sum,
+sum(case when event = 'pageview' then 1 else 0 end) pageview_sum, 
+sum(case when event = 'click' then 1 else 0 end) / nullif(sum(case when event = 'pageview' then 1 else 0 end),0) click_rate
+FROM `focus-shape-427221-e1.Website_Traffic_Analysis_Linkfire.Traffic`
+group by 1
+having sum(case when event = 'click' then 1 else 0 end) / nullif(sum(case when event = 'pageview' then 1 else 0 end),0) > 0.0
+order by 1)
+
+-- Once the cases for either event are account for and the click rate is calculated, we can then get the statistical descriptors
+select
+count(distinct linkid) count_linkid,
+avg(click_rate) avg_click_rate,
+stddev(click_rate) click_rate_std,
+approx_quantiles(click_rate, 4) min_25_median_75_max
+from t1
